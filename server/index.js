@@ -1,21 +1,26 @@
 const express = require('express');
 const { createServer } = require('node:http');
 const { Server } = require('socket.io');
+const path = require('path');
 
-// En producción (Render) el puerto lo asigna la plataforma via variable de entorno
-// En local usamos 3000
 const PORT = process.env.PORT || 3000
-
-// Orígenes permitidos: local (desarrollo) y Vercel (producción)
-const ORIGEN = process.env.CLIENT_URL || 'http://localhost:5173'
 
 const app = express();
 const server = createServer(app);
 
-// maxHttpBufferSize permite enviar archivos de hasta 10MB por socket
+// En producción cliente y servidor están en el mismo dominio → no hay problema de CORS
+// En local el cliente corre en :5173, por eso permitimos ese origen
 const io = new Server(server, {
-  cors: { origin: ORIGEN },
+  cors: { origin: process.env.CLIENT_URL || 'http://localhost:5173' },
   maxHttpBufferSize: 10e6
+});
+
+// Servir los archivos estáticos del cliente Vue (carpeta dist generada por "npm run build")
+app.use(express.static(path.join(__dirname, '../client/dist')));
+// Cualquier ruta desconocida devuelve el index.html de Vue (necesario para el router)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+});
 });
 
 // Usuarios conectados: { socketId: { id, nombre, estado, avatar } }

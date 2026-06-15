@@ -9,9 +9,9 @@ import BarraTabs       from './components/BarraTabs.vue'
 import ListaMensajes   from './components/ListaMensajes.vue'
 import FormularioEnvio from './components/FormularioEnvio.vue'
 
-// Conexión con el servidor de Socket.IO
-// En local usa http://localhost:3000, en producción la URL de Render
-const socket = io(import.meta.env.VITE_SERVER_URL)
+// En desarrollo conecta a localhost:3000
+// En producción conecta al mismo dominio (servidor y cliente están juntos)
+const socket = io(import.meta.env.VITE_SERVER_URL || window.location.origin)
 
 // ════════════════════════════════════════════════════
 // ESTADO GLOBAL (compartido entre componentes)
